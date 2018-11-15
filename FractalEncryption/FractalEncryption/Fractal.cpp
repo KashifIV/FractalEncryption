@@ -10,11 +10,14 @@
 #define inf 0x3f3f3f
 using namespace std; 
 
+// Contains positioning and how interesting a certain area is. 
 struct InterestBox {
 	pair<long double, long double> position;
 	double interestRating;
 	
 };
+// Calculates the value for the number of escape itterations
+// at point (X,Y), MandleBrot Formula: f(z) = z^2 + c
 int Fractal::CalculatePixel(long double x, long double y)
 {
 	double zx = 0;
@@ -35,24 +38,34 @@ int Fractal::CalculatePixel(long double x, long double y)
 		value = i;
 	return value;
 }
+//Returns the current point the fractal is in the 
+// Complex plane
 pair<long double, long double> Fractal::GetPoint()
 {
 	return point; 
 }
+
+// Sets hte current point of the fractal in the complex plane
 void Fractal::SetPoint(pair<long double, long double> p)
 { 
 	point = p; 
 	CalculatePoint(); 
 
 }
+// Using the imaginary number, returns the position of the point
+// on the screen based on pixels
 long double Fractal::GetY(long double y)
 {
 	return y * ((maxI - minI) / double(sizey)) + minI;
 }
+// Using the real number, returns the position of the point on
+// the screen based on pixels 
 long double Fractal::GetX(long double x)
 {
 	return x * ((maxR - minR) / double(sizex)) + minR;
 }
+// Calculates the depth by manipulating the real and 
+// Imaginary bounds of the fractal 
 void Fractal::CalculateDepth()
 {
 		long double power = maxI - minI;
@@ -63,8 +76,9 @@ void Fractal::CalculateDepth()
 		power /= 6;
 		minR += power;
 		maxR -= power;
-	
 }
+//Given a specific Depth (arbitrary) the plane will zoom in
+// Note: the center of the fractal (position) will be the anchor point 
 void Fractal::ZoomToDepth(int d) {
 	depth = d; 
 	for (int i = 1; i < d; i++)
@@ -75,6 +89,8 @@ void Fractal::ZoomToDepth(int d) {
 	}
 	CalculateFractal(); 
 }
+// Using the position in the variable "point", center the fractal such 
+// that the point is in the center
 void Fractal::CalculatePoint()
 {
 	long double lenX = maxR - minR;
@@ -84,11 +100,14 @@ void Fractal::CalculatePoint()
 	maxI = lenY / 2 + point.second; 
 	minI = point.second-lenY / 2;
 }
+// Find a random point of interest in the fractal and return 
+// its position. 
 pair<long double, long double> Fractal::FindPOI()
 {
 	int widthCut = 19; 
 	int heightCut = 15; 
 	vector<InterestBox> boxes; 
+
 	for (int i = 0; i < widthCut; i++)
 	{
 		for (int j = 0; j < heightCut; j++)
@@ -120,7 +139,7 @@ pair<long double, long double> Fractal::FindPOI()
 				low = iterations; 
 			InterestBox a; 
 			a.interestRating = high - low; 
-			a.position = std::make_pair(GetX(long double(highX-lowX)/2 + lowX), GetY(long double(highY - lowY)/2 + lowY));
+			a.position = std::make_pair(GetX(long double(rand()%(highX-lowX)) + lowX), GetY(long double(rand()%(highY - lowY)) + lowY));
 			
 			if (a.interestRating > int(double(iterations)*0.9)) {
 				boxes.push_back(a);
@@ -137,6 +156,8 @@ pair<long double, long double> Fractal::FindPOI()
 	}
 	return boxes[rand() % boxes.size()].position; 
 }
+// Construct a 2D vector "depict" that contains the iterations for all pixel
+// values that should be on screen 
 void Fractal::CalculateFractal()
 { 
 	vector<int> a; 
@@ -150,6 +171,7 @@ void Fractal::CalculateFractal()
 		}
 	}
 }
+//Print all the values in the "Depict" vector
 void Fractal::PrintIter()
 {
 	for (int i = 0; i < sizey; i++)
@@ -161,6 +183,7 @@ void Fractal::PrintIter()
 		cout << endl; 
 	}
 }
+//Draw the fractal to the file filename.bmp
 void Fractal::DrawFractal(string filename)
 {
 	bitmap_image img(sizex, sizey);
@@ -192,9 +215,10 @@ void Fractal::DrawFractal(string filename)
 	}
 	fractal.save_image(filename + ".bmp");
 }
+//Generates a Key comprising of the current position and number of iterations used, 
+//to decrypt the file. Note: All 4 edges of the plane are used to retain precision 
 Key Fractal::GetPublicKey() {
-	srand(time(NULL)); 
-	//int d = (rand() % (depth+1)) + 1; 
+	srand(time(NULL));  
 	int d = depth; 
 	CalculateFractal();
 	for (int i = 1; i < d; i++) {
@@ -205,11 +229,12 @@ Key Fractal::GetPublicKey() {
 		cout << iterations << " " << i << std::endl;
 		CalculateDepth();
 		CalculateFractal();
-		//DrawFractal("FractalZoom"); 
 	}
 	Key a(maxR, minR, maxI, minI, iterations); 
 	return a; 
 }
+//Generate encryption using the iteration values for each pixel in frame, 
+// the function will also remove any repition between pixels 
 vector<int> Fractal::GenerateEncryption()
 {
 	int temp = -1; 
@@ -226,6 +251,8 @@ vector<int> Fractal::GenerateEncryption()
 	}
 	return a; 
 }
+//Using a vector of integers, print all values to a file, 
+// used for debugging 
 void Fractal::WriteToFile(vector<int> a)
 {
 	ofstream out ("Encrypt.txt", ofstream::out); 

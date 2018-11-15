@@ -13,6 +13,8 @@
 
 using namespace std;
 
+// Initialize the inital bounding variables for the fractal, screen size and number of iterations 
+// Note: Consider increasing the screen dimensions 
 void InitializeAutomatic(int &sizex, int &sizey, int &iterations, float &minreal, float &maxreal, float &mini, float &maxi)
 {
 	sizex = 1280;
@@ -22,15 +24,18 @@ void InitializeAutomatic(int &sizex, int &sizey, int &iterations, float &minreal
 	maxreal = 1.33f;
 	mini = -1.0f;
 	maxi = 1.0f;
-
-	return;
 }
+//If you'd like to implement your own default values they can be passed through the CLI by utilizing this function. 
 void InitializeInput(int &sizex, int &sizey, int &iterations, float &minreal, float &maxreal, float &mini, float &maxi)
 {
 	cin >> sizex >> sizey >> iterations;
 	cin >> minreal >> maxreal >> mini >> maxi;
 	return;
 }
+// Encrypt the file to (filename)En.txt, passing in the vector of encryption values 
+// Note: The file is encrypted using a binary read over. This can be used for files other then txts, however the
+// decryption method can't decrypt from this state. 
+// Support for files other then txt will hopefully be supported in a later update 
 bool EncryptFile(string filename, vector<int> a)
 {
 	char ch;
@@ -59,6 +64,8 @@ bool EncryptFile(string filename, vector<int> a)
 	fn.close(); 
 	return true; 
 }
+//Decrypt the file (filename)De.txt, passing in a vector of decryption values 
+//Note: at the moment this method can only decrypt txts. 
 bool DecryptFile(string filename, vector<int> a)
 {
 	char ch;
@@ -88,6 +95,7 @@ bool DecryptFile(string filename, vector<int> a)
 	fn.close();
 	return true;
 }
+// The CLI and controlling method for encrypting or decrypting a file 
 void EncryptionMode() {
 	int sizex, sizey, iterations;
 	float minreal, maxreal, mini, maxi;
@@ -158,6 +166,8 @@ void EncryptionMode() {
 	}
 
 }
+//Check if two vectors are the same, outputing any outliers 
+//Note: this is primarily used for testing 
 bool CheckSame(vector<vector<int>> a, vector<vector<int>> b) {
 	for (int i = 0; i < a.size(); i++)
 	{
@@ -168,6 +178,7 @@ bool CheckSame(vector<vector<int>> a, vector<vector<int>> b) {
 	}
 	return true; 
 }
+// Print the values for all main values of the fractal 
 void PrintAllValues(Fractal *frac)
 {
 	cout << "--------------------------------------------------" << endl; 
@@ -179,6 +190,7 @@ void PrintAllValues(Fractal *frac)
 	cout << "iterations = " << frac->iterations << endl; 
 	cout << "--------------------------------------------------" << endl;
 }
+// Used for exploring and debugging issues related to the fractal 
 void ExploreFractal()
 {
 	int sizex, sizey, iterations;
